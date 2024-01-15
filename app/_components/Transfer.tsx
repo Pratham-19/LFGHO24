@@ -8,7 +8,7 @@ import {
 import { parseEther } from "viem";
 import GhoToken from "@/app/_constant/GhoTokenABI.json";
 import { useState } from "react";
-import { Span } from "next/dist/trace";
+import { useToast } from "@/components/ui/use-toast";
 
 type TransferProps = {
   to: string;
@@ -21,13 +21,23 @@ type TransferProps = {
 
 const Transfer = ({ amount, to, from, setState }: TransferProps) => {
   const [transfer, setTransfer] = useState(false);
+  const { toast } = useToast();
 
   const handleClick = async () => {
     if (to === "" || amount === "0") {
-      alert("Please enter a valid address and amount");
+      toast({
+        title: "Error",
+        description: "Please enter a valid address and amount",
+      });
       return;
     }
     setTransfer(true);
+    {
+      toast({
+        title: "Success",
+        description: "Transaction confirmed",
+      });
+    }
 
     const { request } = await prepareWriteContract({
       address: GhoToken.address as `0x${string}`,
@@ -48,8 +58,9 @@ const Transfer = ({ amount, to, from, setState }: TransferProps) => {
 
     setTransfer(false);
   };
+
   return (
-    <div className="flex flex-col space-y-4 justify-center items-center w-full">
+    <div className="flex flex-col space-y-4 justify-center items-center w-full text-[#DBD2EF]">
       <div className="w-20 h-20 rounded-full bg-[#C1A9FF]"></div>
       <h1 className="text-xl font-normal">You are Paying</h1>
       <h2 className="text-lg font-normal bg-white bg-opacity-10 backdrop-blur-md px-3 py-1.5 rounded-lg">
@@ -64,10 +75,24 @@ const Transfer = ({ amount, to, from, setState }: TransferProps) => {
       <h2 className="pb-4 text-lg font-regular">250 GHO</h2>
       <button
         type="submit"
-        className="border py-1.5 w-3/4 bg-[#d0bdfa] text-black font-medium rounded-xl mt-5 shadow-xl"
+        className="border py-1.5 w-3/4 flex h-12 items-center justify-center bg-[#d0bdfa] text-black font-medium rounded-xl mt-5 shadow-xl"
         onClick={handleClick}
       >
-        {transfer ? "Transfering..." : "Confirm"}
+        {transfer ? (
+          <div className="flex space-x-2 repeat-infinite skew-y-10">
+            <div
+              className={`h-2.5 w-2.5 bg-[#fcfaff] rounded-full transition delay-100 animate-bounce translate-y-96  mr-1`}
+            ></div>
+            <div
+              className={`h-2.5 w-2.5 bg-[#fcfaff] rounded-full transition delay-200 animate-bounce translate-y-96 mr-1`}
+            ></div>
+            <div
+              className={`h-2.5 w-2.5 bg-[#fcfaff] rounded-full transition delay-300 animate-bounce translate-y-96`}
+            ></div>
+          </div>
+        ) : (
+          "Confirm"
+        )}
       </button>
     </div>
   );
